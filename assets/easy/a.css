@@ -396,100 +396,101 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
 
 /* ══ téléphone (portrait) ══════════════════════════════════ */
 
-/* l'index en roue, sous le grand logo */
-.drum { display: none; }
+/* l'index en réglette, sous l'éventail (03/11, à la place du rouleau) */
+.rule { display: none; }
 [data-mob='1'] .idx { display: none; }
-[data-mob='1'] .drum {
+[data-mob='1'] .rule {
+  --cell: 44px;                          /* l'écart entre deux crans (RULE_CELL dans a.js) */
   display: block;
-  position: absolute;
-  left: var(--pad);
-  right: var(--pad);
-  z-index: 25;
-  opacity: 0;
-  pointer-events: none;
-  perspective: 900px;
-  transition: opacity 420ms var(--out);
-}
-[data-mob='1'][data-view='deck'] .drum { opacity: 1; pointer-events: auto; transition-delay: 180ms; }
-.drum__sc {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scroll-snap-type: y mandatory;
-  scrollbar-width: none;
-  transform-style: preserve-3d;
-  outline: none;
-}
-/* les lignes s'éteignent vers les bords du cylindre : deux voiles fixes
-   par-dessus plutôt qu'un masque sur la zone qui défile (qui oblige
-   Safari à tout recomposer à chaque image) */
-[data-mob='1'] .drum::before, [data-mob='1'] .drum::after {
-  content: '';
   position: absolute;
   left: 0;
   right: 0;
-  height: 16%;
-  z-index: 2;
+  z-index: 25;
+  opacity: 0;
   pointer-events: none;
+  transition: opacity 420ms var(--out);
 }
-[data-mob='1'] .drum::before { top: 0; background: linear-gradient(var(--paper), transparent); }
-[data-mob='1'] .drum::after { bottom: 0; background: linear-gradient(transparent, var(--paper)); }
-.drum__sc::-webkit-scrollbar { display: none; }
-.drum__pad { display: block; height: calc(50% - var(--ih) / 2); }
-.drum__it {
+[data-mob='1'][data-view='deck'] .rule { opacity: 1; pointer-events: auto; transition-delay: 180ms; }
+/* les titres glissent, sans filet : celui du repère à l'encre, avec son
+   lieu dessous ; les voisins, plus clairs, s'éteignent vers les bords */
+.rule__view { position: absolute; left: 0; right: 0; top: 0; height: 56px; overflow: hidden; pointer-events: none; }
+.rule__titles {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: var(--ih);
-  padding: 0 8px;
-  scroll-snap-align: center;
-  /* un cran par face : le rouleau s'arrête sur chaque projet, un par un */
-  scroll-snap-stop: always;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
+  align-items: flex-start;
+  gap: 30px;
+  white-space: nowrap;
+  will-change: transform;
 }
-.drum__it .t {
-  max-width: 100%;
+.rule__it { flex: none; display: flex; flex-direction: column; align-items: center; will-change: opacity; }
+.rule__it .t {
   font-family: var(--title);
   font-weight: var(--title-w);
   letter-spacing: var(--title-ls);
   font-size: 21px;
-  line-height: 1.1;
+  line-height: 1.15;
   color: #a8a7a2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   transition: color 200ms linear;
 }
-.drum__it .l {
-  font-family: var(--meta);
-  font-size: 11px;
-  line-height: 1.2;
-  color: var(--ink-3);
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: opacity 200ms linear, max-height 200ms var(--out);
-}
-.drum__it.is-on .t { color: var(--ink); }
-.drum__it.is-on .l { max-height: 14px; opacity: 1; margin-top: 3px; }
-/* la fenêtre de sélection : deux filets, comme sur le réveil */
-.drum__sel {
+.rule__it .l { margin-top: 4px; font-family: var(--meta); font-size: 11px; line-height: 1.2; color: var(--ink-3); opacity: 0; transition: opacity 200ms linear; }
+.rule__it.is-on .t { color: var(--ink); }
+.rule__it.is-on .l { opacity: 1; }
+/* la graduation : un cran par projet, trois traits fins entre deux crans.
+   C'est elle qui défile sous le pouce, sur toute la hauteur de la
+   réglette (titres compris) ; les titres la suivent */
+.rule__sc {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: calc(var(--ih) + 8px);
-  transform: translateY(-50%);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.rule__sc::-webkit-scrollbar { display: none; }
+.rule__pad { flex: none; width: calc(50% - var(--cell) / 2); }
+.rule__cell {
+  flex: none;
+  width: var(--cell);
+  scroll-snap-align: center;
+  background:
+    linear-gradient(var(--line-2), var(--line-2)) 50% 100% / 1px 12px no-repeat,
+    linear-gradient(var(--line), var(--line)) 0 100% / 1px 6px no-repeat,
+    linear-gradient(var(--line), var(--line)) 25% 100% / 1px 6px no-repeat,
+    linear-gradient(var(--line), var(--line)) 75% 100% / 1px 6px no-repeat;
+}
+/* le repère, fixe au milieu ; il marque chaque cran franchi */
+.rule__mark {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 1px;
+  height: 18px;
+  margin-left: -0.5px;
+  background: var(--ink);
+  transform-origin: 50% 100%;
   pointer-events: none;
 }
-.drum.is-tick .drum__sel { animation: cran 260ms var(--out); }
-@keyframes cran { 0% { border-color: rgba(18, 18, 20, 0.45); } 100% { border-color: var(--line); } }
+.rule.is-tick .rule__mark { animation: cran 260ms var(--out); }
+@keyframes cran { 0% { transform: scaleY(1.45); } 100% { transform: none; } }
+/* les bords s'éteignent : deux voiles fixes (pas de masque sur ce qui
+   défile, qui oblige Safari à tout recomposer à chaque image) */
+[data-mob='1'] .rule::before, [data-mob='1'] .rule::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  z-index: 2;
+  pointer-events: none;
+}
+[data-mob='1'] .rule::before { left: 0; background: linear-gradient(90deg, var(--paper), transparent); }
+[data-mob='1'] .rule::after { right: 0; background: linear-gradient(270deg, var(--paper), transparent); }
 
 
 /* le bandeau d'une fiche : il reste en haut, discret */

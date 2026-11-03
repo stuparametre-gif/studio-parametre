@@ -47,9 +47,7 @@ const recN = $('recN'), recT = $('recT'), recM = $('recM'), recX = $('recX'), re
 const reelWrap = $('reelWrap'), reel = $('reel'), recClose = $('recClose'), recScroll = $('recScroll');
 const recText = document.querySelector('.rec__text');
 const recTBox = document.querySelector('.rec__t');
-const drum = $('drum'), drumSc = $('drumSc'), band = $('band');
-/* la roue : l'angle entre deux lignes, en degrés */
-const DRUM_STEP = 360 / N;           /* un pan par projet : le rouleau se referme */
+const rule = $('rule'), ruleSc = $('ruleSc'), band = $('band');
 recClose.innerHTML = icon('x');
 document.querySelector('.tools [data-mail]').innerHTML = icon('mail');
 
@@ -108,100 +106,92 @@ const rows = P.map((p, i) => {
   return li.firstElementChild;
 });
 
-/* ══ la roue (téléphone) ══════════════════════════════════
-   Les projets sont les faces d'un rouleau fermé : un polygone à un
-   pan par projet, qu'on fait tourner du pouce, comme le sélecteur
-   d'heure d'un réveil. Sous le doigt, c'est un vrai défilement
-   natif calé ligne par ligne (l'inertie est celle du téléphone) ;
-   la liste est répétée pour que le rouleau n'ait ni début ni fin.
-   Toucher la face du devant ouvre le projet ; toucher une autre
-   face la ramène devant. */
-const COPIES = 9;
-const drumItems = [];
-for (let c = 0; c < COPIES; c++) P.forEach((p, i) => {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.className = 'drum__it';
-  b.tabIndex = -1;
-  b.setAttribute('role', 'option');
-  b.innerHTML = `<span class="t"></span><span class="l"></span>`;
-  b.querySelector('.t').textContent = p.tc || p.t;
-  b.querySelector('.l').textContent = venue(p);
-  const j = c * N + i;
-  b.addEventListener('click', () => {
-    if (Math.round(drumPos()) === j) openProject(i);
-    else drumGo(j, true);
-  });
-  drumSc.appendChild(b);
-  drumItems.push(b);
+/* ══ la réglette (téléphone) ═════════════════════════════
+   L'index au pouce (03/11, à la place du rouleau) : une graduation
+   discrète en bas, qu'on fait glisser de gauche à droite, un cran par
+   projet ; à l'arrêt, elle se cale toujours sur un cran, jamais entre
+   deux. Au-dessus, les titres glissent avec elle, sans filet : celui
+   du repère à l'encre, avec son lieu ; ses voisins s'éteignent. La
+   lamelle du projet choisi se lève et prend le dégradé. Sous le doigt,
+   c'est un vrai défilement natif (l'inertie est celle du téléphone) ;
+   les titres le suivent, d'un centre de titre à l'autre. Toucher le
+   titre du repère ouvre le projet ; toucher un autre titre, ou un cran,
+   l'amène au repère. */
+const RULE_CELL = 44;                    /* l'écart entre deux crans (--cell dans a.css) */
+const ruleTitles = $('ruleTitles');
+const ruleItems = P.map((p) => {
+  const it = document.createElement('span');
+  it.className = 'rule__it';
+  it.innerHTML = `<span class="t"></span><span class="l"></span>`;
+  it.querySelector('.t').textContent = p.tc || p.t;
+  it.querySelector('.l').textContent = venue(p);
+  ruleTitles.appendChild(it);
+  return it;
 });
-const drumPad = () => { const pd = document.createElement('i'); pd.className = 'drum__pad'; return pd; };
-drumSc.prepend(drumPad()); drumSc.append(drumPad());
+ruleSc.innerHTML = '<i class="rule__pad"></i>' +
+  P.map((p, i) => `<span class="rule__cell" role="option" aria-selected="false" aria-label="${pad2(i)} — ${p.t}"></span>`).join('') +
+  '<i class="rule__pad"></i>';
+const ruleCells = [...ruleSc.querySelectorAll('.rule__cell')];
 
-const drumPos = () => drumSc.scrollTop / (G.M.IH || 48);
-const drumAt = () => ((Math.round(drumPos()) % N) + N) % N;
-const drumGo = (j, smooth) => drumSc.scrollTo({ top: j * G.M.IH, behavior: smooth && !REDUCED ? 'smooth' : 'instant' });
-/* amène le projet i devant, par le chemin le plus court */
-function drumTo(i, smooth) {
-  if (!G.mob || !G.M.IH) return;
-  const pos = drumSc.scrollTop / G.M.IH;
-  let j = Math.round(pos) - drumAt() + i;
-  if (j - pos > N / 2) j -= N; else if (pos - j > N / 2) j += N;
-  if (!smooth || j < N || j > N * (COPIES - 1)) j = Math.floor(COPIES / 2) * N + i;
-  drumGo(j, smooth);
-  drumPaint();
+const rulePos = () => clamp(ruleSc.scrollLeft / RULE_CELL, 0, N - 1);
+const ruleAt = () => Math.round(rulePos());
+const ruleGo = (i, smooth) => ruleSc.scrollTo({ left: clamp(i, 0, N - 1) * RULE_CELL, behavior: smooth && !REDUCED ? 'smooth' : 'instant' });
+/* amène le projet i au repère */
+function ruleTo(i, smooth) {
+  if (!G.mob) return;
+  ruleGo(i, smooth);
+  rulePaint();
 }
-/* À l'arrêt, le rouleau se cale toujours sur une face : jamais entre
-   deux. Puis il revient, sans que ça se voie, vers la copie du milieu. */
-let drumIdle = 0;
-function drumSettle() {
-  const pos = drumPos(), j = Math.round(pos);
-  if (Math.abs(pos - j) > 0.01) { drumGo(j, true); return; }
-  const mid = Math.floor(COPIES / 2) * N;
-  if (Math.abs(j - (mid + N / 2)) > N * 1.5) drumGo(mid + drumAt(), false);
-}
-let drumSel = -1, drumLo = 0, drumHi = 0;
-function drumPaint() {
-  if (!G.mob || !G.M.IH) return;
-  const R = G.M.R, pos = drumPos();
-  const lo = Math.max(0, Math.floor(pos) - 4), hi = Math.min(drumItems.length - 1, Math.ceil(pos) + 4);
-  /* on ne touche qu'aux faces proches du devant ; les autres restent cachées */
-  for (let j = drumLo; j <= drumHi; j++) if (j < lo || j > hi) drumItems[j].style.visibility = 'hidden';
-  for (let j = lo; j <= hi; j++) {
-    const b = drumItems[j], d = j - pos;
-    const a = d * DRUM_STEP, rad = (a * Math.PI) / 180;
-    if (Math.abs(a) >= 88) { b.style.visibility = 'hidden'; continue; }
-    /* la face est ramenée sur le rouleau : sa place réelle est R·sin(a) */
-    const y = R * Math.sin(rad) - d * G.M.IH;
-    b.style.visibility = '';
-    b.style.transform = `translate3d(0,${y.toFixed(2)}px,0) rotateX(${(-a).toFixed(2)}deg)`;
-    b.style.opacity = Math.max(0, Math.cos(rad)).toFixed(3);
-  }
-  drumLo = lo; drumHi = hi;
-  const k = drumAt();
-  if (k !== drumSel) {
-    drumSel = k;
-    drumItems.forEach((b, j) => { const on = j % N === k; b.classList.toggle('is-on', on); b.setAttribute('aria-selected', String(on)); });
-    drumSc.setAttribute('aria-label', `Projet ${pad2(k)} sur ${N} : ${P[k].t}. Entrée pour ouvrir.`);
+/* le centre de chaque titre dans la bande, mesuré une fois posé (et à
+   l'arrivée des polices) : la bande passe d'un centre à l'autre */
+let ruleX = [];
+function ruleLayout() { ruleX = ruleItems.map((it) => it.offsetLeft + it.offsetWidth / 2); }
+let ruleSel = -1;
+function rulePaint() {
+  if (!G.mob || !ruleX.length) return;
+  const pos = rulePos(), k0 = Math.min(Math.floor(pos), N - 2), f = pos - k0;
+  const x = ruleX[k0] + (ruleX[k0 + 1] - ruleX[k0]) * f;
+  ruleTitles.style.transform = `translate3d(${(rule.clientWidth / 2 - x).toFixed(1)}px,0,0)`;
+  ruleItems.forEach((it, i) => { it.style.opacity = Math.max(0, 1 - Math.abs(i - pos) * 0.62).toFixed(3); });
+  const k = ruleAt();
+  if (k !== ruleSel) {
+    ruleSel = k;
+    ruleItems.forEach((it, i) => it.classList.toggle('is-on', i === k));
+    ruleCells.forEach((c, i) => c.setAttribute('aria-selected', String(i === k)));
+    ruleSc.setAttribute('aria-label', `Projet ${pad2(k)} sur ${N} : ${P[k].t}. Entrée pour ouvrir.`);
     /* la lamelle du projet choisi se lève et prend le dégradé */
     ptr.set('i', k); ptr.set('prox', 1); wake();
-    /* le cran : la fenêtre de sélection marque chaque passage */
-    drum.classList.remove('is-tick'); void drum.offsetWidth; drum.classList.add('is-tick');
+    /* le cran : le repère marque chaque passage */
+    rule.classList.remove('is-tick'); void rule.offsetWidth; rule.classList.add('is-tick');
     active = k;
   }
 }
-/* un seul dessin du rouleau par image, quel que soit le nombre
-   d'événements de défilement (Safari en envoie plusieurs par image) */
-let drumQueued = false;
-drumSc.addEventListener('scroll', () => {
-  if (!drumQueued) { drumQueued = true; requestAnimationFrame(() => { drumQueued = false; drumPaint(); }); }
-  clearTimeout(drumIdle);
-  drumIdle = setTimeout(drumSettle, 140);
+/* à l'arrêt, toujours sur un cran (au cas où le calage natif manque) */
+let ruleIdle = 0;
+function ruleSettle() {
+  const pos = rulePos(), j = Math.round(pos);
+  if (Math.abs(pos - j) > 0.01) ruleGo(j, true);
+}
+/* un seul dessin par image, quel que soit le nombre d'événements de
+   défilement (Safari en envoie plusieurs par image) */
+let ruleQueued = false;
+ruleSc.addEventListener('scroll', () => {
+  if (!ruleQueued) { ruleQueued = true; requestAnimationFrame(() => { ruleQueued = false; rulePaint(); }); }
+  clearTimeout(ruleIdle);
+  ruleIdle = setTimeout(ruleSettle, 140);
 }, { passive: true });
-drumSc.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowDown') { e.preventDefault(); drumGo(Math.round(drumPos()) + 1, true); }
-  if (e.key === 'ArrowUp') { e.preventDefault(); drumGo(Math.round(drumPos()) - 1, true); }
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProject(drumAt()); }
+ruleSc.addEventListener('click', (e) => {
+  const box = ruleSc.getBoundingClientRect();
+  /* dans la graduation : le cran visé ; plus haut : le titre visé */
+  let i = -1;
+  if (e.clientY < box.bottom - 30) i = ruleItems.findIndex((it) => { const b = it.getBoundingClientRect(); return +it.style.opacity > 0.05 && e.clientX >= b.left && e.clientX <= b.right; });
+  if (i < 0) i = clamp(Math.round(rulePos() + (e.clientX - (box.left + box.width / 2)) / RULE_CELL), 0, N - 1);
+  if (i === ruleAt()) openProject(i); else ruleGo(i, true);
+});
+ruleSc.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); ruleGo(ruleAt() + 1, true); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); ruleGo(ruleAt() - 1, true); }
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProject(ruleAt()); }
 });
 
 const ui = new Rig({
@@ -324,41 +314,38 @@ function measure() {
   app.dataset.col = stack ? 'stack' : 'side';
 
   /* ── téléphone (portrait) : le logo officiel en grand à l'arrivée ; puis
-     il se déplie en éventail au-dessus de la roue, et la lamelle du
+     il se déplie en éventail au-dessus de la réglette, et la lamelle du
      projet choisi prend le dégradé, comme sur ordinateur. À l'ouverture
      d'une fiche, le logo remonte dans le bandeau ── */
   const mob = !side;
   app.dataset.mob = mob ? '1' : '';
   let M = {};
   if (mob) {
-    const IH = vh < 640 ? 46 : 52;                    /* hauteur d'une face du rouleau */
-    const R = IH / (2 * Math.tan(Math.PI / N));      /* rayon du polygone à N pans */
-    const drumH = Math.round(2 * R * 1.02);
+    const ruleH = vh < 640 ? 92 : 104;               /* la réglette : les titres, puis la graduation */
     const topB = pad + 44;
     let fs = clamp(Math.min(vw * 0.1, vh * 0.062), 28, 50);
     const blockOf = (f) => { const h = f * 2.95, w = h * TILE_RATIO; return 4 * w * STEP_X * SLOPE + h + f * 0.2 + f; };
     const hH = fs * 2.95, hW = hH * TILE_RATIO, hRise = 4 * hW * STEP_X * SLOPE, hGap = fs * 0.2;
     const blockH = blockOf(fs);
     const logoTop = topB;
-    /* la roue en bas, l'éventail dans tout l'espace au-dessus */
-    const drumTop = vh - pad - drumH;
-    dx0 = pad; dx1 = vw - pad; dy0 = topB + 18; dy1 = drumTop - 22;
+    /* la réglette en bas, l'éventail dans tout l'espace au-dessus */
+    const ruleTop = vh - pad - ruleH;
+    dx0 = pad; dx1 = vw - pad; dy0 = topB + 18; dy1 = ruleTop - 22;
     th = clamp(Math.min(((dy1 - dy0) * 0.84) / VEXT, ((dx1 - dx0) * 0.9) / HEXT), 90, 420);
     tw = th * TILE_RATIO;
     const cyOf = (headY) => headY - vh / 2 - 2 * hW * STEP_X * SLOPE;
     const introHead = vh / 2 - blockH / 2 + hRise + hH / 2;
     const deckHead = logoTop + hRise + hH / 2;
     M = {
-      IH, R, drumH, drumTop, fs, hH, hW,
+      ruleH, ruleTop, fs, hH, hW,
       introCy: cyOf(introHead), deckCy: cyOf(deckHead),
       introHeroY: introHead + hH / 2 + hGap, deckHeroY: deckHead + hH / 2 + hGap,
       band: topB + 4
     };
     s.setProperty('--scroll-y', M.band + 'px');
     s.setProperty('--band', M.band + 'px');
-    drum.style.setProperty('--ih', IH + 'px');
-    drum.style.top = drumTop + 'px';
-    drum.style.height = drumH + 'px';
+    rule.style.top = ruleTop + 'px';
+    rule.style.height = ruleH + 'px';
   }
 
   G = {
@@ -391,7 +378,7 @@ function measure() {
   idx.style.setProperty('--idx-w', idxW + 'px');
   idx.style.setProperty('--row', row + 'px');
   if (view === 'open') { layoutReel(); relEdge(); }
-  if (mob) { measureGlyph(); drumPaint(); }
+  if (mob) { measureGlyph(); ruleLayout(); rulePaint(); }
   chrome();
 }
 
@@ -581,7 +568,7 @@ function setView(v) {
   if (v !== 'open') showRel(null);
   if (v === 'deck') {
     if (prevView === 'intro') { unfoldAt = performance.now() + UNFOLD_DELAY * 1000; setTimeout(wake, UNFOLD_DELAY * 1000 + 20); }
-    chrome(0.25); closeRecord(); if (G.mob) drumTo(active, false);
+    chrome(0.25); closeRecord(); if (G.mob) ruleTo(active, false);
   }
   if (v === 'open') chrome();
   syncHash();
@@ -794,7 +781,7 @@ scene.addEventListener('click', (e) => {
   if (G.mob) {
     if (!b) return;
     const i = +b.dataset.i;
-    if (i === active) openProject(i); else drumTo(i, true);
+    if (i === active) openProject(i); else ruleTo(i, true);
     return;
   }
   const i = b ? +b.dataset.i : clamp(Math.round(ptr.s.i.target), 0, N - 1);

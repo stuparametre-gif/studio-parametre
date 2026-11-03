@@ -68,10 +68,11 @@
   <!-- téléphone : le bandeau qui reste en haut d'une fiche -->
   <div class="band" id="band" aria-hidden="true"></div>
 
-  <!-- téléphone : l'index en roue, comme le réglage d'un réveil -->
-  <div class="drum" id="drum" aria-label="Index des projets">
-    <i class="drum__sel" aria-hidden="true"></i>
-    <div class="drum__sc" id="drumSc" role="listbox" tabindex="0" aria-label="Choisir un projet"></div>
+  <!-- téléphone : l'index en réglette graduée, qu'on fait glisser du pouce -->
+  <div class="rule" id="rule" aria-label="Index des projets">
+    <div class="rule__view" aria-hidden="true"><div class="rule__titles" id="ruleTitles"></div></div>
+    <div class="rule__sc" id="ruleSc" role="listbox" tabindex="0" aria-label="Choisir un projet"></div>
+    <i class="rule__mark" aria-hidden="true"></i>
   </div>
 
   <!-- l'index : les onze projets, lisibles d'un coup d'œil -->
