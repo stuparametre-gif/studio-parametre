@@ -4,8 +4,8 @@
    à droite fait la même chose. Studio, périmètre et contact y
    tiennent ensemble — l'ancien about et l'ancien contact fusionnés. */
 
-import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=5917ed4e';
-import { TILE_PATH, TILE_BOX } from '../js/data.js?v=5917ed4e';
+import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=6f7daf38';
+import { TILE_PATH, TILE_BOX } from '../js/data.js?v=6f7daf38';
 
 document.documentElement.dataset.type = 'cabinet';
 

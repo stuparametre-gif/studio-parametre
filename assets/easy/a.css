@@ -372,12 +372,16 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
 }
 [data-col='stack'] .rec__scroll::-webkit-scrollbar { display: none; }
 [data-col='stack'] .rec__text { position: static; width: auto; max-height: none; overflow: visible; }
-[data-col='stack'] .reel { position: static; height: auto; margin-top: 36px; }
-[data-col='stack'] .reel::before { display: none; }
-[data-col='stack'] .reel__track { display: flex; flex-direction: column; align-items: stretch; gap: 44px; height: auto; overflow: visible; }
+/* relative pour porter son axe ; les décalages de la bande d'ordinateur ne s'appliquent plus */
+[data-col='stack'] .reel { position: relative; inset: auto; height: auto; margin-top: 36px; }
+/* en colonne, la ligne d'accrochage devient verticale (03/11) : les
+   visuels, de largeurs différentes, sont centrés sur un même axe, qui
+   se lit entre eux comme un fil */
+[data-col='stack'] .reel::before { left: 50%; right: auto; top: 0; bottom: 0; width: 1px; height: auto; }
+[data-col='stack'] .reel__track { display: flex; flex-direction: column; align-items: center; gap: 44px; height: auto; overflow: visible; }
+[data-col='stack'] .shot { width: 100%; }
 [data-col='stack'] .shot__img { height: auto; width: 100%; }
-/* en colonne, l'accrochage se lit en largeur : pleine, en retrait, décalée */
-[data-col='stack'] .shot:nth-child(3n+2) { width: 84%; align-self: flex-end; }
+[data-col='stack'] .shot:nth-child(3n+2) { width: 84%; }
 [data-col='stack'] .shot:nth-child(3n+3) { width: 92%; }
 [data-col='stack'] .shot__img img { width: 100%; height: auto; }
 [data-col='stack'] .reel__arw { display: none !important; }
@@ -400,7 +404,11 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
 .rule { display: none; }
 [data-mob='1'] .idx { display: none; }
 [data-mob='1'] .rule {
-  --cell: 44px;                          /* l'écart entre deux crans (RULE_CELL dans a.js) */
+  --cell: 64px;                          /* l'écart entre deux crans (RULE_CELL dans a.js) */
+  /* presque invisible (03/11) : les crans, les traits fins, le repère */
+  --rule-1: rgba(18, 18, 20, 0.12);
+  --rule-2: rgba(18, 18, 20, 0.06);
+  --rule-mark: rgba(18, 18, 20, 0.4);
   display: block;
   position: absolute;
   left: 0;
@@ -413,7 +421,19 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
 [data-mob='1'][data-view='deck'] .rule { opacity: 1; pointer-events: auto; transition-delay: 180ms; }
 /* les titres glissent, sans filet : celui du repère à l'encre, avec son
    lieu dessous ; les voisins, plus clairs, s'éteignent vers les bords */
-.rule__view { position: absolute; left: 0; right: 0; top: 0; height: 56px; overflow: hidden; pointer-events: none; }
+.rule__view {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 56px;
+  overflow: hidden;
+  pointer-events: none;
+  /* les titres s'éteignent vers les bords : un masque sur ce cadre fixe
+     (un voile peint par-dessus laissait des bandes visibles) */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
 .rule__titles {
   position: absolute;
   left: 0;
@@ -459,10 +479,10 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
   width: var(--cell);
   scroll-snap-align: center;
   background:
-    linear-gradient(var(--line-2), var(--line-2)) 50% 100% / 1px 12px no-repeat,
-    linear-gradient(var(--line), var(--line)) 0 100% / 1px 6px no-repeat,
-    linear-gradient(var(--line), var(--line)) 25% 100% / 1px 6px no-repeat,
-    linear-gradient(var(--line), var(--line)) 75% 100% / 1px 6px no-repeat;
+    linear-gradient(var(--rule-1), var(--rule-1)) 50% 100% / 1px 12px no-repeat,
+    linear-gradient(var(--rule-2), var(--rule-2)) 0 100% / 1px 6px no-repeat,
+    linear-gradient(var(--rule-2), var(--rule-2)) 25% 100% / 1px 6px no-repeat,
+    linear-gradient(var(--rule-2), var(--rule-2)) 75% 100% / 1px 6px no-repeat;
 }
 /* le repère, fixe au milieu ; il marque chaque cran franchi */
 .rule__mark {
@@ -472,18 +492,19 @@ button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
   width: 1px;
   height: 18px;
   margin-left: -0.5px;
-  background: var(--ink);
+  background: var(--rule-mark);
   transform-origin: 50% 100%;
   pointer-events: none;
 }
 .rule.is-tick .rule__mark { animation: cran 260ms var(--out); }
 @keyframes cran { 0% { transform: scaleY(1.45); } 100% { transform: none; } }
-/* les bords s'éteignent : deux voiles fixes (pas de masque sur ce qui
-   défile, qui oblige Safari à tout recomposer à chaque image) */
+/* la graduation s'éteint vers les bords : deux voiles fixes sur sa seule
+   hauteur (pas de masque sur ce qui défile, qui oblige Safari à tout
+   recomposer à chaque image) */
 [data-mob='1'] .rule::before, [data-mob='1'] .rule::after {
   content: '';
   position: absolute;
-  top: 0;
+  height: 24px;
   bottom: 0;
   width: 18%;
   z-index: 2;

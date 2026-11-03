@@ -8,11 +8,11 @@
    — un index textuel des projets tient à côté de l'éventail ;
    — les visuels gardent leurs proportions : rien n'est recadré.   */
 
-import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=5917ed4e';
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=5917ed4e';
-import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=5917ed4e';
-import { icon, paramsOpen, openParams } from '../commun/params.js?v=5917ed4e';
-import { loupe } from '../commun/loupe.js?v=5917ed4e';
+import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=6f7daf38';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=6f7daf38';
+import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=6f7daf38';
+import { icon, paramsOpen, openParams } from '../commun/params.js?v=6f7daf38';
+import { loupe } from '../commun/loupe.js?v=6f7daf38';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -117,7 +117,9 @@ const rows = P.map((p, i) => {
    les titres le suivent, d'un centre de titre à l'autre. Toucher le
    titre du repère ouvre le projet ; toucher un autre titre, ou un cran,
    l'amène au repère. */
-const RULE_CELL = 44;                    /* l'écart entre deux crans (--cell dans a.css) */
+/* l'écart entre deux crans (--cell dans a.css) ; plus il est grand,
+   moins la réglette file sous le pouce (44 px jugés trop sensibles) */
+const RULE_CELL = 64;
 const ruleTitles = $('ruleTitles');
 const ruleItems = P.map((p) => {
   const it = document.createElement('span');
@@ -820,6 +822,17 @@ const stepBy = () => reel.clientWidth * 0.6;
 $('reelPrev').addEventListener('click', () => reel.scrollBy({ left: -stepBy(), behavior: 'smooth' }));
 $('reelNext').addEventListener('click', () => reel.scrollBy({ left: stepBy(), behavior: 'smooth' }));
 reel.addEventListener('scroll', syncArrows, { passive: true });
+/* au clavier, sur ordinateur, d'un visuel à l'autre : le suivant vient
+   se caler au bord gauche de la bande (la loupe a ses propres flèches) */
+function reelStep(d) {
+  if (!shots.length) return;
+  const x0 = shots[0].el.offsetLeft, xs = shots.map((s) => s.el.offsetLeft - x0);
+  const max = reel.scrollWidth - reel.clientWidth;
+  let k = 0;
+  xs.forEach((x, i) => { if (Math.abs(x - reel.scrollLeft) < Math.abs(xs[k] - reel.scrollLeft)) k = i; });
+  const j = clamp(k + d, 0, xs.length - 1);
+  reel.scrollTo({ left: Math.min(xs[j], max), behavior: REDUCED ? 'instant' : 'smooth' });
+}
 /* toucher un visuel l'agrandit deux fois, sur place */
 loupe(reel, { scale: 2, margin: () => G.pad });
 
@@ -828,6 +841,7 @@ addEventListener('keydown', (e) => {
   if (paramsOpen() || e.ctrlKey || e.metaKey) return;
   if (view === 'intro') { skipIntro(); return; }
   if (e.key === 'Escape') { if (kwOn) showRel(null); else if (view === 'open') closeProject(); return; }
+  if (view === 'open' && !G.stack && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); reelStep(e.key === 'ArrowRight' ? 1 : -1); return; }
   if (view !== 'deck') return;
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); step(active + 1); }
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); step(active - 1); }

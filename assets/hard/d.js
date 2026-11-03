@@ -6,13 +6,13 @@
    et gère le glitch, le grain, le journal et les liens.
    Les réglages du visiteur restent dans son navigateur.       */
 
-import { PROJECTS as P, TILE_PATH, TILE_BOX, RATIO } from '../js/data.js?v=5917ed4e';
-import { STEP, SLOPE } from '../commun/logo.js?v=5917ed4e';
-import { icon, paramsOpen } from '../commun/params.js?v=5917ed4e';
-import { drawLogo, drawPhoto, PALETTES } from './render.js?v=5917ed4e';
-import { KEYS, pad2, venue, year, BY, NODES, EDGES, CHRONO, drawNet, focus as focusNet, drawChrono, focusChrono, drawMatrix, focusMatrix, drawStrata, focusStrata, strataOrder } from './views.js?v=5917ed4e';
-import { buildConsole, DEFAULTS, LOGO } from './console.js?v=5917ed4e';
-import { loupe } from '../commun/loupe.js?v=5917ed4e';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, RATIO } from '../js/data.js?v=6f7daf38';
+import { STEP, SLOPE } from '../commun/logo.js?v=6f7daf38';
+import { icon, paramsOpen } from '../commun/params.js?v=6f7daf38';
+import { drawLogo, drawPhoto, PALETTES } from './render.js?v=6f7daf38';
+import { KEYS, pad2, venue, year, BY, NODES, EDGES, CHRONO, drawNet, focus as focusNet, drawChrono, focusChrono, drawMatrix, focusMatrix, drawStrata, focusStrata, strataOrder } from './views.js?v=6f7daf38';
+import { buildConsole, DEFAULTS, LOGO } from './console.js?v=6f7daf38';
+import { loupe } from '../commun/loupe.js?v=6f7daf38';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -565,10 +565,27 @@ addEventListener('resize', () => { if (openIdx >= 0) layoutReel(); }, { passive:
 
 /* ══ clavier, liens ═══════════════════════════════════════ */
 
+/* dans un dossier, sur ordinateur, les flèches passent d'un visuel à
+   l'autre : le suivant vient se caler au bord gauche de la bande */
+function reelStep(d) {
+  const reel = $('reel');
+  if (!shots.length) return;
+  const x0 = shots[0].el.offsetLeft, xs = shots.map((s) => s.el.offsetLeft - x0);
+  const max = reel.scrollWidth - reel.clientWidth;
+  let k = 0;
+  xs.forEach((x, i) => { if (Math.abs(x - reel.scrollLeft) < Math.abs(xs[k] - reel.scrollLeft)) k = i; });
+  const j = Math.max(0, Math.min(xs.length - 1, k + d));
+  reel.scrollTo({ left: Math.min(xs[j], max), behavior: 'smooth' });
+}
 addEventListener('keydown', (e) => {
   if (paramsOpen() || e.ctrlKey || e.metaKey) return;
   if (e.target.closest && e.target.closest('input')) return;
   if (e.key === 'Escape') { if (openIdx >= 0) closeProject(); else if (filter) applyFilter(null); }
+  if (openIdx >= 0 && !MOB.matches && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')
+      && (e.target === document.body || (e.target.closest && e.target.closest('#rec')))) {
+    e.preventDefault();
+    reelStep(e.key === 'ArrowRight' ? 1 : -1);
+  }
 });
 /* ouvrir un dossier ajoute une entrée à l'historique : le bouton
    « précédent » le referme au lieu de quitter le site */

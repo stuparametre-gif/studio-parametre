@@ -20,7 +20,7 @@ let cur = null;
 /* `margin` : la marge de la page, pour que le visuel agrandi ne dépasse
    jamais l'alignement des autres éléments */
 export function loupe(root, { scale = 2, pick = '.shot__img', margin = () => M0 } = {}) {
-  const opt = { scale, margin };
+  const opt = { scale, margin, root, pick };
   root.addEventListener('click', (e) => {
     const box = e.target.closest(pick);
     if (!box || !box.querySelector('img')) return;
@@ -39,7 +39,8 @@ export function loupe(root, { scale = 2, pick = '.shot__img', margin = () => M0 
 
 export const loupeOpen = () => !!cur;
 
-function open(box, { scale, margin }, px, py) {
+function open(box, opt, px, py) {
+  const { scale, margin } = opt;
   if (cur) { close(); return; }
   const src = box.querySelector('img');
   const r = box.getBoundingClientRect();
@@ -115,6 +116,17 @@ function open(box, { scale, margin }, px, py) {
 
   const onKey = (e) => {
     if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopImmediatePropagation(); close(); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      /* les flèches passent au visuel voisin, agrandi à son tour */
+      e.preventDefault(); e.stopImmediatePropagation();
+      const all = [...opt.root.querySelectorAll(opt.pick)].filter((b) => b.querySelector('img'));
+      const next = all[all.indexOf(box) + (e.key === 'ArrowRight' ? 1 : -1)];
+      if (!next) return;
+      close();
+      next.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'nearest' });
+      const r = next.getBoundingClientRect();
+      open(next, opt, r.left + r.width / 2, r.top + r.height / 2);
+    }
     else if (e.key === 'Tab') e.preventDefault();
   };
   const onWheel = () => { if (!pan) close(); };
