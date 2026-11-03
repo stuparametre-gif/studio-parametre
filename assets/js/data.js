@@ -28,16 +28,12 @@ export const PROJECTS = [
     d: '21 octobre 2026 – 27 février 2027',
     k: ['Scénographie complète', 'Création technique', 'Modélisation'],
     ph: [
-      ['ndop-01', 'Les alcôves de fils bleus, textiles de Ly Dumas'],
-      ['ndop-02', 'L’entrée, photographie monumentale'],
-      ['ndop-03', 'Le trône sur son socle rouge, entre les ndop'],
-      ['ndop-04', 'Le costume présenté en fragments'],
-      ['ndop-05', 'Masque, salle rouge'],
-      ['ndop-06', 'Création de Ly Dumas devant les ndop'],
       ['ndop-07', 'À travers le rideau de fils d’une alcôve'],
       ['ndop-08', 'Modélisation des alcôves'],
-      ['ndop-09', 'Modélisation de l’entrée'],
-      ['ndop-10', 'Modélisation de l’espace du trône']
+      ['ndop-01', 'Les alcôves de fils bleus, textiles de Ly Dumas'],
+      ['ndop-10', 'Modélisation de l’espace du trône'],
+      ['ndop-03', 'Le trône sur son socle rouge, entre les ndop'],
+      ['ndop-02', 'L’entrée, photographie monumentale']
     ]
   },
   {
@@ -62,11 +58,10 @@ export const PROJECTS = [
     d: '20 mars – 9 juillet 2026',
     k: ['Scénographie complète'],
     ph: [
-      ['fenetre-01', 'Vue d’accrochage'],
+      ['fenetre-04', 'Volumes et surfaces planes'],
       ['fenetre-02', 'Face-à-face toile / textile'],
       ['fenetre-03', 'Le vide comme intervalle'],
-      ['fenetre-04', 'Volumes et surfaces planes'],
-      ['fenetre-accroches', 'Étude d’accroches'],
+      ['fenetre-01', 'Vue d’accrochage'],
       ['fenetre-socle', 'Étude du socle type'],
       ['fenetre-mobilier', 'Étude du mobilier']
     ]
@@ -77,7 +72,9 @@ export const PROJECTS = [
     l: 'Maison Gacha, Paris',
     d: '30 juin – 27 septembre 2025',
     k: ['Conseil spatial', 'Modélisation'],
-    ph: [['tissu-01', 'Vue d’exposition'], ['tissu-02', 'Détail']]
+    ph: [
+      ['tissu-01', 'Vue d’exposition']
+    ]
   },
   {
     t: 'Par quatre chemins',
@@ -86,14 +83,10 @@ export const PROJECTS = [
     d: '12 avril – 9 juin 2025',
     k: ['Conseil spatial', 'Implantation', 'Visibilité', 'Modélisation'],
     ph: [
-      ['poush-05', 'Vue d’exposition'],
-      ['poush-06', 'Vue d’exposition'],
-      ['poush-07', 'Vue d’exposition'],
-      ['poush-08', 'Vue d’exposition'],
       ['poush-01', 'Modélisation du pavillon'],
-      ['poush-02', 'Modélisation du pavillon'],
       ['poush-03', 'Modélisation, détail'],
-      ['poush-04', 'Modélisation, détail']
+      ['poush-08', 'Vue d’exposition'],
+      ['poush-07', 'Vue d’exposition']
     ]
   },
   {
@@ -102,7 +95,10 @@ export const PROJECTS = [
     l: 'Maison Gacha, Paris',
     d: '21 mars – 6 juin 2025',
     k: ['Conseil spatial', 'Modélisation'],
-    ph: [['mains-01', 'Vue d’exposition'], ['mains-02', 'Trois distances de lecture']]
+    ph: [
+      ['mains-02', 'Trois distances de lecture'],
+      ['mains-01', 'Vue d’exposition']
+    ]
   },
   {
     t: 'Tabula Rasa',
@@ -111,11 +107,9 @@ export const PROJECTS = [
     d: '8 mars – 18 avril 2025',
     k: ['Conseil spatial', 'Densité', 'Parcours'],
     ph: [
-      ['tabula-05', 'Vue d’exposition'],
       ['tabula-01', 'Vue d’exposition'],
       ['tabula-02', 'Le seuil, réglé par le parcours'],
-      ['tabula-03', 'Détail'],
-      ['tabula-04', 'Façade']
+      ['tabula-05', 'Vue d’exposition']
     ]
   },
   {
@@ -125,10 +119,10 @@ export const PROJECTS = [
     d: '2023',
     k: ['Conseil spatial', 'Accrochage', 'Contraintes du bâtiment'],
     ph: [
-      ['arendt-02', 'Vue d’exposition'],
-      ['arendt-03', 'Vue d’exposition'],
+      ['arendt-01', 'Étude d’accrochage'],
       ['arendt-04', 'Modélisation de la salle'],
-      ['arendt-01', 'Étude d’accrochage']
+      ['arendt-03', 'Vue d’exposition'],
+      ['arendt-02', 'Vue d’exposition']
     ]
   },
   {
@@ -138,11 +132,10 @@ export const PROJECTS = [
     d: 'juin 2022',
     k: ['Conseil spatial', 'Modélisation'],
     ph: [
-      ['circulation-01', 'Vue d’exposition'],
-      ['circulation-02', 'Vue d’exposition'],
       ['circulation-03', 'Le mur d’accrochage'],
-      ['circulation-04', 'Modélisation du mur'],
-      ['circulation-05', 'Modélisation, détail']
+      ['circulation-05', 'Modélisation, détail'],
+      ['circulation-01', 'Vue d’exposition'],
+      ['circulation-04', 'Modélisation du mur']
     ]
   },
   {
