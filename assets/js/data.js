@@ -20,6 +20,9 @@ export const TILE_RATIO = 81.804 / 286.9;
 export const PROJECTS = [
   {
     t: 'Ndop, filer le bleu pour raconter un monde',
+    /* titre court (03/11) : là où la place manque, rouleau du téléphone,
+       index et téléscripteur de hard ; la fiche garde le titre entier */
+    tc: 'Ndop, filer le bleu',
     a: 'Artistes variés',
     l: 'Maison Gacha, Paris',
     d: '21 octobre 2026 – 27 février 2027',

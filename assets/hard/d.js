@@ -392,7 +392,8 @@ document.documentElement.style.setProperty('--n', N);
 const rows = P.map((p, i) => {
   const li = document.createElement('li');
   li.innerHTML = `<button type="button" class="ir"><span class="n num">${pad2(i)}</span><span class="t"></span><i class="dl"></i><span class="y num">${year(p) || '····'}</span></button>`;
-  li.querySelector('.t').textContent = p.t;
+  li.querySelector('.t').textContent = p.tc || p.t;
+  if (p.tc) li.firstElementChild.title = p.t;
   $('idxList').appendChild(li);
   const b = li.firstElementChild;
   b.addEventListener('pointerenter', () => { if (FINE.matches) focusIn('p' + i); });
@@ -414,7 +415,7 @@ const tickCards = P.map((p, i) => {
   b.type = 'button';
   b.className = 'tk';
   b.innerHTML = `<span class="tk__n num">${pad2(i)}</span><span class="tk__t"></span><span class="tk__m num"></span>`;
-  b.querySelector('.tk__t').textContent = p.t;
+  b.querySelector('.tk__t').textContent = p.tc || p.t;
   b.querySelector('.tk__m').textContent = [year(p), venue(p)].filter(Boolean).join(' · ');
   b.addEventListener('click', () => { if (tickAt() === i) openProject(i); else tickTo(i); });
   tickSc.appendChild(b);

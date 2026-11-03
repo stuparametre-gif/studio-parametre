@@ -125,7 +125,7 @@ for (let c = 0; c < COPIES; c++) P.forEach((p, i) => {
   b.tabIndex = -1;
   b.setAttribute('role', 'option');
   b.innerHTML = `<span class="t"></span><span class="l"></span>`;
-  b.querySelector('.t').textContent = p.t;
+  b.querySelector('.t').textContent = p.tc || p.t;
   b.querySelector('.l').textContent = venue(p);
   const j = c * N + i;
   b.addEventListener('click', () => {
