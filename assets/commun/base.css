@@ -1,0 +1,408 @@
+@import url('fonts.css');
+/* studio, paramètre — socle commun aux maquettes A et C
+   Registre clair : le papier du logo officiel, le white cube.
+   Le mot-symbole est dessiné en SVG (03/11) : sa licence Coolvetica
+   ne permet pas de servir la police sur le web. Les tracés sont
+   tirés de la police (Ressources_site/mot-symbole/), à la même
+   chasse, au même approche et sur la même ligne de base.        */
+
+@font-face { font-family: 'Geist'; src: url('../../fonts/geist.woff2') format('woff2'); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('../../fonts/geist-mono.woff2') format('woff2'); font-weight: 300 600; font-display: swap; }
+@font-face { font-family: 'Doto'; src: url('../../fonts/doto.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+@font-face {
+  font-family: 'Inter';
+  src: url('../../fonts/inter-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f4f3ef;
+  --paper-2: #ebeae5;     /* cases de réserve, survols */
+  --ink: #121214;
+  --ink-2: #3f3f45;
+  --ink-3: #6b6b72;       /* 4,8:1 sur le papier */
+  --line: rgba(18, 18, 20, 0.13);
+  --line-2: rgba(18, 18, 20, 0.28);
+
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+
+  /* la voix typographique : voir maquettes/typo.html et fonts.css (?type=…) */
+  --title: 'Satoshi', var(--sans);
+  --title-w: 500;
+  --title-ls: -0.03em;
+  --title-k: 1;
+  --title-wd: 100%;
+  --text: 'Satoshi', var(--sans);
+  --meta: 'Satoshi', var(--sans);
+  --mono: 'Geist Mono', ui-monospace, monospace;
+
+  --pad: clamp(16px, 3.2vw, 52px);
+  --ui: 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  --out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: 'ss01', 'cv05', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+::selection { background: var(--ink); color: var(--paper); }
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 4px; }
+.defs { position: absolute; width: 0; height: 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ── le mot-symbole, tuiles devant, texte à la suite ─────── */
+/* le mot-symbole dessiné : une ligne de 1em, la ligne de base au même
+   endroit que le texte qu'il remplace ; les jambages dépassent */
+.mark { display: block; height: 1em; width: auto; overflow: visible; fill: currentColor; }
+/* La virgule du mot-symbole est un bouton : elle ouvre les
+   Paramètres, comme Ctrl + , dans les logiciels. Elle porte
+   le dégradé du logo pour se signaler, sans rien ajouter. */
+.brand__home { display: inline-flex; align-items: flex-end; gap: 0.5em; white-space: pre; }
+.brand__comma {
+  position: relative;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 260ms var(--out);
+}
+.brand__comma .mark { fill: url(#gel-v); }
+.brand__comma::before { content: ''; position: absolute; inset: -16px -14px -14px; }
+.brand__comma:hover { transform: translateY(1px) scale(1.25); }
+
+.brand {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.brand svg[data-glyph] { height: 1.8em; width: auto; overflow: visible; flex: none; margin-bottom: -0.24em; margin-right: 0.1em; }
+
+/* ── la touche de clavier : Ctrl + , ─────────────────────── */
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+  color: var(--ink-3);
+  transition: color var(--ui);
+}
+.key kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--line-2);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--paper);
+  transition: border-color var(--ui), transform var(--ui);
+}
+.key kbd.comma { font-size: 15px; line-height: 1; padding-bottom: 5px; }
+.key:hover { color: var(--ink); }
+.key:hover kbd { border-color: var(--ink-3); }
+.key:active kbd { transform: translateY(1px); border-bottom-width: 1px; }
+/* au doigt, la touche Ctrl n'a pas de sens : seule la virgule reste */
+@media (hover: none) { .key .ctrl { display: none; } }
+
+.ico {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--ink-3);
+  transition: color var(--ui);
+}
+.ico:hover { color: var(--ink); }
+.ico svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+
+/* ══ panneau Paramètres ═══════════════════════════════════
+   Pas un tiroir plein qui s'installe : un voile. La page reste
+   visible dessous, floutée, et le contenu se pose ligne à ligne
+   sans cadre, sans bord, sans aplat.                           */
+
+.prm {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 520ms;
+}
+.prm.is-on { visibility: visible; pointer-events: auto; transition: none; }
+.prm__veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(244, 243, 239, 0.58);
+  -webkit-backdrop-filter: blur(46px) saturate(1.15);
+  backdrop-filter: blur(46px) saturate(1.15);
+  opacity: 0;
+  transition: opacity 520ms var(--out);
+}
+.prm.is-on .prm__veil { opacity: 1; }
+
+.prm__win {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--pad) 0 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.prm__win::-webkit-scrollbar { display: none; }
+
+/* chaque bloc se pose à son tour, en fondu, sans masse */
+.prm__win > :not(dl), .prm__row {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 260ms var(--out), transform 260ms var(--out);
+}
+.prm.is-on .prm__win > :not(dl), .prm.is-on .prm__row {
+  opacity: 1;
+  transform: none;
+  transition: opacity 620ms var(--out), transform 720ms var(--out);
+  transition-delay: calc(var(--d, 0) * 70ms + 90ms);
+}
+.prm__logo { --d: 1; }
+.prm__row:nth-child(1) { --d: 2; }
+.prm__row:nth-child(2) { --d: 3; }
+.prm__row:nth-child(3) { --d: 4; }
+.prm__row:nth-child(4) { --d: 5; }
+.prm__foot { --d: 6; }
+
+.prm__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: var(--pad) 0 0 26px;
+  margin-right: -10px;
+}
+.prm__bar h2 { font-size: 12px; font-weight: 400; color: var(--ink-3); letter-spacing: 0.01em; }
+.prm__bar .key { display: none; }
+
+.prm__logo { padding: 48px 0 34px 26px; }
+.prm__logo > svg { display: block; height: 58px; width: auto; }
+.prm__logo p { margin-top: 10px; font-size: 21px; line-height: 1; }
+
+/* chaque réglage : une étiquette à gauche, sa valeur à droite */
+.prm__row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 16px;
+  padding: 17px 0 17px 26px;
+  border-top: 1px solid rgba(18, 18, 20, 0.07);
+}
+.prm__row dt { padding-top: 2px; font-size: 11px; color: var(--ink-3); }
+.prm__row dd { font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+.prm__row dd.lead { color: var(--ink); font-size: 15.5px; line-height: 1.45; letter-spacing: -0.01em; }
+.prm__row ul { list-style: none; }
+.prm__row li + li { margin-top: 2px; }
+.prm__row li.more { color: var(--ink-3); }
+.prm__chan { display: flex; gap: 2px; margin: -12px 0 -12px -12px; }
+.prm__foot {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  padding: 26px 0 22px 26px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.prm__hint kbd { font-family: var(--mono); font-size: 10px; padding: 1px 5px; border: 1px solid var(--line-2); border-radius: 3px; }
+@media (hover: none) { .prm__hint { display: none; } }
+
+@media (max-width: 640px) {
+  .prm__win { width: 100%; padding: 0 var(--pad); }
+  .prm__bar, .prm__logo, .prm__row, .prm__foot { padding-left: 0; }
+  .prm__row { grid-template-columns: 1fr; gap: 6px; }
+  .prm__logo { padding-top: 34px; padding-bottom: 24px; }
+  .prm__logo > svg { height: 50px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prm__veil, .prm__win > *, .prm__row { transition: none !important; }
+}
+
+/* ── ce qui bouge derrière le voile ──────────────────────── */
+.prm__drift { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 900ms var(--out); }
+.prm.is-on .prm__drift { opacity: 1; }
+.drift {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  height: var(--h);
+  aspect-ratio: 81.8 / 286.9;
+  animation: drift var(--t) cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+  animation-delay: var(--dl);
+  animation-play-state: paused;
+}
+.prm.is-on .drift { animation-play-state: running; }
+.drift svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.drift--0 { --x: 18vw; --y: 6vh;  --h: 92vh; --t: 23s; --dl: -4s;  --dx: 16vw; --dy: 6vh;  --r: -14deg; }
+.drift--1 { --x: 34vw; --y: -8vh; --h: 70vh; --t: 29s; --dl: -11s; --dx: -12vw; --dy: 18vh; --r: 22deg; }
+.drift--2 { --x: 4vw;  --y: 30vh; --h: 64vh; --t: 34s; --dl: -7s;  --dx: 22vw; --dy: -14vh; --r: -30deg; }
+.drift--3 { --x: 48vw; --y: 34vh; --h: 58vh; --t: 26s; --dl: -17s; --dx: -18vw; --dy: -10vh; --r: 18deg; }
+.drift--4 { --x: 60vw; --y: 2vh;  --h: 50vh; --t: 38s; --dl: -2s;  --dx: -8vw; --dy: 22vh; --r: -12deg; }
+@keyframes drift {
+  from { transform: translate(0, 0) rotate(0deg) scale(1); }
+  to   { transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) { .drift { animation: none; } }
+
+/* ── « paramétrage » : un bouton creusé dans la page ────────
+   Une petite touche dans un logement, un voyant, une étiquette.
+   Éteint en easy ; allumé en hard. */
+.tek {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  transition: color var(--ui);
+}
+.tek:hover { color: var(--ink); }
+/* le logement */
+.tek__key {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  border-radius: 6px;
+  background: var(--paper-2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+}
+/* la touche, posée dans son logement */
+.tek__key::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 4px;
+  background: linear-gradient(#fbfaf7, #e9e8e2);
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.2), inset 0 1px 0 #fff;
+  transition: transform 110ms ease-out, box-shadow 110ms ease-out;
+}
+.tek:hover .tek__key::after { transform: translateY(0.5px); }
+.tek.is-down .tek__key::after, .tek:active .tek__key::after { transform: translateY(1px); box-shadow: 0 0 0 rgba(0, 0, 0, 0), inset 0 1px 1px rgba(0, 0, 0, 0.08); }
+.tek__led {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: #c9c7c0;
+  transition: background 160ms linear, box-shadow 160ms linear;
+}
+.tek.is-on .tek__led, .tek.is-down .tek__led { background: #ff5a1f; box-shadow: 0 0 6px #ff5a1f; }
+/* la touche seule, sans étiquette, dans les deux versions. En easy,
+   son voyant respire lentement, comme un appareil en veille ; en hard,
+   il reste allumé */
+.tek__lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.tek { padding: 0 7px; }
+:root:not([data-mode='hard']) .tek:not(.is-down) .tek__led { animation: veille 3.2s ease-in-out infinite; }
+@keyframes veille {
+  0%, 100% { background: #cfccc4; box-shadow: 0 0 0 rgba(255, 90, 31, 0); }
+  50% { background: #ff7a45; box-shadow: 0 0 5px rgba(255, 90, 31, 0.55); }
+}
+@media (prefers-reduced-motion: reduce) { .tek__led { animation: none !important; } }
+/* en hard, le même bouton, dans un logement sombre */
+[data-mode='hard'] .tek__key { background: #060607; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.06); }
+[data-mode='hard'] .tek__key::after { background: linear-gradient(#2c2c30, #1b1b1e); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
+[data-mode='hard'][data-pal='papier'] .tek__key, [data-mode='hard'][data-pal='cobalt'] .tek__key { background: var(--paper-2); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.7); }
+[data-mode='hard'][data-pal='papier'] .tek__key::after, [data-mode='hard'][data-pal='cobalt'] .tek__key::after { background: linear-gradient(#fbfaf7, #e9e8e2); }
+
+/* le passage d'une version à l'autre : un rideau qui descend */
+html.is-leaving-hard::after, html.is-leaving-soft::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0c0c0d;
+  animation: rideau 420ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+html.is-leaving-soft::after { background: #f4f3ef; }
+@keyframes rideau { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) { html.is-leaving-hard::after, html.is-leaving-soft::after { animation: none; } }
+
+/* au téléphone, sur une fiche, la croix de fermeture rejoint les outils :
+   le mot-symbole s'efface, les tuiles suffisent à signer */
+
+
+/* ── la loupe : un visuel agrandi sur place (commun/loupe.js) ──
+   Pas une visionneuse plein écran : le visuel grandit depuis sa
+   place, deux ou trois fois, et la page passe sous un voile de
+   papier. Il se repose à sa place au toucher.                  */
+.shot__img:has(img) { cursor: zoom-in; }
+.loupe { position: fixed; inset: 0; z-index: 95; overflow: hidden; cursor: zoom-out; outline: none; }
+.loupe--pan { overflow: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.loupe--pan::-webkit-scrollbar { display: none; }
+.loupe__veil { position: fixed; inset: 0; background: color-mix(in srgb, var(--paper) 92%, transparent); opacity: 0; transition: opacity 320ms var(--out); }
+.loupe.is-on .loupe__veil { opacity: 1; }
+.loupe__stage { position: relative; }
+.loupe__fig { position: absolute; margin: 0; transform-origin: 0 0; transition: transform 420ms var(--out); will-change: transform; }
+.loupe.is-off .loupe__fig { transition-duration: 320ms; }
+.loupe__fig img { width: 100%; height: 100%; }
+.loupe__fig figcaption {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  padding-top: 10px;
+  font-family: var(--meta);
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+/* au doigt, le visuel déborde : la légende reste posée en bas de l'écran */
+.loupe__cap {
+  position: fixed;
+  /* le texte tombe sur la marge de 16 px du téléphone */
+  left: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding: 4px 8px;
+  background: var(--paper);
+  font-family: var(--meta);
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+.loupe.is-on figcaption, .loupe.is-on .loupe__cap { opacity: 1; transition-delay: 280ms; }
+.loupe__fig figcaption .num, .loupe__cap .num { color: var(--ink); margin-right: 8px; }
+.is-loupe { visibility: hidden; }

@@ -1,0 +1,512 @@
+/* Maquette A — « Salle blanche »
+   Le site d'un seul écran, passé au papier. Le logo officiel
+   accueille, se déploie seul en éventail, et l'index des onze
+   projets se lit à côté. La scène reste animée par js/motion.js. */
+
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { touch-action: manipulation; }
+
+#app { position: fixed; inset: 0; overflow: hidden; }
+
+.scene { position: absolute; inset: 0; perspective: 2600px; }
+.deck { position: absolute; inset: 0; transform-style: preserve-3d; }
+
+.tile {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--tw, 90px);
+  height: var(--th, 300px);
+  margin: calc(var(--th, 300px) / -2) 0 0 calc(var(--tw, 90px) / -2);
+  transform-origin: 50% 62%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.tile svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.tile__gel { fill: url(#gel); }
+.tile__hit { fill: transparent; }
+
+/* ── accueil ─────────────────────────────────────────────── */
+.hero {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 30;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.hero__mark {
+  display: block;
+  font-size: var(--herofs, 44px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── en-tête et outils ───────────────────────────────────── */
+.head {
+  position: absolute;
+  left: var(--pad);
+  top: var(--pad);
+  z-index: 40;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  will-change: transform, opacity;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-view='deck'] .head, [data-view='open'] .head { pointer-events: auto; }
+
+.tools {
+  position: absolute;
+  /* calée au pixel : le bord de l'icône e-mail tombe sur la marge,
+     et le centre des icônes sur le milieu de l'œil du mot-symbole */
+  right: calc(var(--pad) - 15px);
+  top: calc(var(--pad) + 3px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 400ms var(--out);
+  pointer-events: none;
+}
+[data-view='deck'] .tools, [data-view='open'] .tools { opacity: 1; pointer-events: auto; }
+.tools__x { opacity: 0; pointer-events: none; transition: opacity var(--ui), color var(--ui); }
+[data-view='open'] .tools__x { opacity: 1; pointer-events: auto; }
+
+/* ── l'index : diaphane ──────────────────────────────────
+   Pas de numéros, pas de filets : des titres en gris clair qui
+   flottent à côté de l'éventail. Seul celui qu'on vise prend
+   l'encre.                                                     */
+.idx {
+  position: absolute;
+  left: var(--idx-x, 60vw);
+  top: var(--idx-y, 30vh);
+  width: var(--idx-w, 400px);
+  z-index: 25;
+  pointer-events: none;
+}
+[data-view='deck'] .idx { pointer-events: auto; }
+.idx ol { list-style: none; }
+.idx li {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 320ms var(--out), transform 420ms var(--out);
+}
+[data-view='deck'] .idx li {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--k) * 40ms + 280ms);
+}
+.idx__r {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  width: 100%;
+  height: var(--row, 40px);
+  padding: 0;
+  text-align: left;
+  color: #b4b3ae;
+  transition: color 280ms var(--out), transform 380ms var(--out);
+}
+.idx__r .t {
+  flex: none;
+  max-width: 100%;
+  font-family: var(--title);
+  font-size: calc(17px * var(--title-k, 1));
+  font-weight: var(--title-w);
+  letter-spacing: var(--title-ls);
+  color: #9d9c97;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 280ms var(--out);
+}
+.idx__r.is-on, .idx__r:hover, .idx__r:focus-visible { color: var(--ink-3); transform: translateX(4px); }
+.idx__r .l {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 11.5px;
+  color: #a9a8a3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 260ms var(--out), transform 320ms var(--out);
+}
+.idx__r.is-on .l, .idx__r:hover .l, .idx__r:focus-visible .l { opacity: 1; transform: none; color: var(--ink-3); }
+@media (hover: none) { .idx__r .l { opacity: 1; transform: none; } }
+.idx__r.is-on .t, .idx__r:hover .t, .idx__r:focus-visible .t { color: var(--ink); }
+.idx--tight .idx__r .t { font-size: calc(14.5px * var(--title-k, 1)); }
+.idx__r .l, .rec__n, .rec__meta { font-family: var(--meta); }
+
+/* ══ fiche projet ═════════════════════════════════════════ */
+
+.rec { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+.rec__scroll { display: contents; }
+[data-view='open'] .rec__text,
+[data-view='open'] .rec__scroll,
+[data-view='open'] .reel { pointer-events: auto; }
+
+.rec__text {
+  position: absolute;
+  left: var(--rec-x, 30vw);
+  top: var(--rec-y, 15vh);
+  width: var(--rec-w, 46vw);
+  max-height: var(--rec-h, 44vh);
+  overflow: hidden auto;
+  scrollbar-width: none;
+  opacity: 0;
+  will-change: opacity;
+}
+.rec__text::-webkit-scrollbar { display: none; }
+
+.rec__n { font-size: 11px; line-height: 17px; min-height: 17px; color: var(--ink-3); margin-bottom: 10px; will-change: transform, opacity; }
+
+.rec__t {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  padding: 0.12em 0 0.16em;
+  font-family: var(--title);
+  font-stretch: var(--title-wd, 100%);
+  font-size: calc(var(--rec-fs, 44px) * var(--title-k, 1));
+  font-weight: var(--title-w);
+  line-height: 1.02;
+  letter-spacing: var(--title-ls);
+  text-wrap: balance;
+}
+.rec__t::before,
+.rec__t::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(var(--rule, 0));
+  transform-origin: left center;
+}
+/* un filet au-dessus, un filet dessous : le titre est tenu entre deux lignes */
+.rec__t::before { top: 0; }
+.rec__t::after { bottom: 0; }
+.rec__t__in { display: block; flex: 1 1 auto; min-width: 0; font: inherit; will-change: transform; }
+
+.rec__meta {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  will-change: transform, opacity;
+}
+.rec__meta b { color: var(--ink); font-weight: 500; }
+
+/* ce que le studio a fait, en cartouches, le rôle en premier et plein :
+   la seule voix de la fiche après le titre (03/11). La boîte a la
+   hauteur exacte d'une ligne de --kw-fs : le pied du logo s'y cale. */
+.rec__kw {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 0.45em;
+  font-family: var(--title);
+  font-stretch: var(--title-wd, 100%);
+  font-weight: var(--title-w);
+  font-size: var(--kw-fs, 17px);
+  line-height: 1.25;
+  letter-spacing: calc(var(--title-ls) / 2);
+  color: var(--ink);
+  will-change: transform, opacity;
+}
+.rec__kw .kw {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 1.25em;
+  padding: 0 0.62em;
+  border: 1px solid var(--line-2);
+  font: inherit;
+  white-space: nowrap;
+  transition: border-color var(--ui);
+}
+.rec__kw .kw > span { font-size: 0.62em; letter-spacing: 0; }
+.rec__kw .kw:first-child { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+/* partagé avec d'autres projets : combien, en petit */
+.rec__kw .kw small { margin-left: 0.6em; font-size: 0.86em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.rec__kw .kw:first-child small { color: rgba(244, 243, 239, 0.62); }
+.kw--link:hover, .kw--link:focus-visible { border-color: var(--ink); }
+/* au doigt, la cible déborde le cartouche ; le bloc texte lui garde la
+   place, sinon il deviendrait défilable de quelques pixels */
+.kw--link::before { content: ''; position: absolute; inset: -10px -3px; }
+[data-col='side'] .rec__text { padding-bottom: 12px; }
+/* ouvert : le filet du bas prend le dégradé du logo */
+.kw--link.is-on::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 3px;
+  background: linear-gradient(90deg, #e2007b 0%, #720c60 30%, #221958 55%, #7b93ab 80%, #d4f1ed 100%);
+}
+
+/* ── les projets liés : en bas, sous un filet, discrets ──────── */
+.rel {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: var(--pad);
+  border-top: 1px solid var(--line-2);
+  font-family: var(--meta);
+  font-size: 12.5px;
+  line-height: 19px;
+  color: var(--ink-2);
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity var(--ui), transform var(--ui);
+}
+.rel.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.rel__sc {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rel__sc::-webkit-scrollbar { display: none; }
+.rel__sc.has-more { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 80px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 80px), transparent); }
+.rel__sc.has-more.has-less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 80px), transparent); mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 80px), transparent); }
+.rel__sc.has-less:not(.has-more) { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px); mask-image: linear-gradient(90deg, transparent, #000 48px); }
+.rel__k { flex: none; color: var(--ink); font-weight: 500; }
+.rel__p { flex: none; white-space: nowrap; transition: color var(--ui); }
+.rel__p .num { margin-right: 8px; color: var(--ink-3); }
+button.rel__p:hover, button.rel__p:focus-visible { color: var(--ink); }
+
+/* ── la bande de visuels : jamais recadrés ───────────────── */
+.reel {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  top: var(--reel-y, 62vh);
+  height: var(--reel-h, 30vh);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.reel__track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(22px, 2.6vw, 44px);
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.reel__track::-webkit-scrollbar { display: none; }
+/* la ligne d'accrochage : un axe commun, qui passe derrière les visuels */
+.reel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(18, 18, 20, 0.09);
+}
+
+.shot {
+  position: relative;
+  flex: none;
+  scroll-snap-align: start;
+  will-change: transform, opacity;
+}
+.shot__img {
+  height: var(--sh, 200px);
+  width: auto;
+  background: var(--paper-2);
+}
+.shot__img img { height: 100%; width: auto; }
+.shot--empty .shot__img { border: 1px solid var(--line); }
+
+.reel__arw {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  display: none;
+  place-items: center;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  transition: opacity var(--ui), color var(--ui);
+}
+.reel--many .reel__arw { display: grid; }
+.reel__arw:hover { color: var(--ink); }
+.reel__arw[disabled] { opacity: 0; pointer-events: none; }
+.reel__arw--l { left: -8px; }
+.reel__arw--r { right: -8px; }
+.reel__arw svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+.nojs { position: fixed; inset: 0; display: grid; place-content: center; padding: var(--pad); background: var(--paper); z-index: 200; text-align: center; }
+
+/* ══ écran étroit : la fiche devient une colonne qui défile ══ */
+[data-col='stack'] .rec__scroll {
+  display: block;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  top: var(--scroll-y, 40vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding: 0 var(--pad) calc(var(--pad) + 24px);
+}
+[data-col='stack'] .rec__scroll::-webkit-scrollbar { display: none; }
+[data-col='stack'] .rec__text { position: static; width: auto; max-height: none; overflow: visible; }
+[data-col='stack'] .reel { position: static; height: auto; margin-top: 36px; }
+[data-col='stack'] .reel::before { display: none; }
+[data-col='stack'] .reel__track { display: flex; flex-direction: column; align-items: stretch; gap: 44px; height: auto; overflow: visible; }
+[data-col='stack'] .shot__img { height: auto; width: 100%; }
+/* en colonne, l'accrochage se lit en largeur : pleine, en retrait, décalée */
+[data-col='stack'] .shot:nth-child(3n+2) { width: 84%; align-self: flex-end; }
+[data-col='stack'] .shot:nth-child(3n+3) { width: 92%; }
+[data-col='stack'] .shot__img img { width: 100%; height: auto; }
+[data-col='stack'] .reel__arw { display: none !important; }
+/* au téléphone, la bande se pose au pied de l'écran et défile au doigt */
+[data-col='stack'] .rel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  padding: 0 var(--pad) calc(12px + env(safe-area-inset-bottom));
+  background: var(--paper);
+}
+[data-col='stack'] .rel__sc { padding-top: 12px; }
+[data-col='stack'][data-rel='1'] .rec__scroll { padding-bottom: calc(var(--pad) + 88px); }
+
+/* ══ téléphone (portrait) ══════════════════════════════════ */
+
+/* l'index en roue, sous le grand logo */
+.drum { display: none; }
+[data-mob='1'] .idx { display: none; }
+[data-mob='1'] .drum {
+  display: block;
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  z-index: 25;
+  opacity: 0;
+  pointer-events: none;
+  perspective: 900px;
+  transition: opacity 420ms var(--out);
+}
+[data-mob='1'][data-view='deck'] .drum { opacity: 1; pointer-events: auto; transition-delay: 180ms; }
+.drum__sc {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  transform-style: preserve-3d;
+  outline: none;
+}
+/* les lignes s'éteignent vers les bords du cylindre : deux voiles fixes
+   par-dessus plutôt qu'un masque sur la zone qui défile (qui oblige
+   Safari à tout recomposer à chaque image) */
+[data-mob='1'] .drum::before, [data-mob='1'] .drum::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16%;
+  z-index: 2;
+  pointer-events: none;
+}
+[data-mob='1'] .drum::before { top: 0; background: linear-gradient(var(--paper), transparent); }
+[data-mob='1'] .drum::after { bottom: 0; background: linear-gradient(transparent, var(--paper)); }
+.drum__sc::-webkit-scrollbar { display: none; }
+.drum__pad { display: block; height: calc(50% - var(--ih) / 2); }
+.drum__it {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--ih);
+  padding: 0 8px;
+  scroll-snap-align: center;
+  /* un cran par face : le rouleau s'arrête sur chaque projet, un par un */
+  scroll-snap-stop: always;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+.drum__it .t {
+  max-width: 100%;
+  font-family: var(--title);
+  font-weight: var(--title-w);
+  letter-spacing: var(--title-ls);
+  font-size: 21px;
+  line-height: 1.1;
+  color: #a8a7a2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 200ms linear;
+}
+.drum__it .l {
+  font-family: var(--meta);
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--ink-3);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 200ms linear, max-height 200ms var(--out);
+}
+.drum__it.is-on .t { color: var(--ink); }
+.drum__it.is-on .l { max-height: 14px; opacity: 1; margin-top: 3px; }
+/* la fenêtre de sélection : deux filets, comme sur le réveil */
+.drum__sel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: calc(var(--ih) + 8px);
+  transform: translateY(-50%);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+}
+.drum.is-tick .drum__sel { animation: cran 260ms var(--out); }
+@keyframes cran { 0% { border-color: rgba(18, 18, 20, 0.45); } 100% { border-color: var(--line); } }
+
+
+/* le bandeau d'une fiche : il reste en haut, discret */
+.band { display: none; }
+[data-mob='1'] .band {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--band, 64px);
+  z-index: 35;
+  background: var(--paper);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--out), box-shadow 300ms var(--out);
+}
+[data-mob='1'][data-view='open'] .band { opacity: 1; }
+[data-mob='1'] .band.is-scrolled { box-shadow: 0 1px 0 var(--line); }
+[data-mob='1'] .rec__scroll { padding-top: 14px; }

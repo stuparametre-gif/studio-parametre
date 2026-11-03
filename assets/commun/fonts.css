@@ -1,0 +1,9 @@
+/* les voix typographiques à l'essai — toutes libres, servies en local */
+@font-face { font-family: 'Satoshi'; src: url('../../fonts/satoshi-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Satoshi'; src: url('../../fonts/satoshi-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Satoshi'; src: url('../../fonts/satoshi-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Cabinet Grotesk'; src: url('../../fonts/cabinet-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Cabinet Grotesk'; src: url('../../fonts/cabinet-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Cabinet Grotesk'; src: url('../../fonts/cabinet-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Syne'; src: url('../../fonts/syne.woff2') format('woff2'); font-weight: 400 800; font-display: swap; }
+:root[data-type='cabinet'] { --title: 'Cabinet Grotesk', var(--sans); --title-w: 500; --title-ls: -0.025em; --title-k: 1.02; --text: 'Satoshi', var(--sans); --meta: 'Satoshi', var(--sans);  }
