@@ -6,13 +6,13 @@
    et gère le glitch, le grain, le journal et les liens.
    Les réglages du visiteur restent dans son navigateur.       */
 
-import { PROJECTS as P, TILE_PATH, TILE_BOX, RATIO } from '../js/data.js';
-import { STEP, SLOPE } from '../commun/logo.js';
-import { icon, paramsOpen } from '../commun/params.js';
-import { drawLogo, drawPhoto, PALETTES } from './render.js';
-import { KEYS, pad2, venue, year, BY, NODES, EDGES, CHRONO, drawNet, focus as focusNet, drawChrono, focusChrono, drawMatrix, focusMatrix, drawStrata, focusStrata, strataOrder } from './views.js';
-import { buildConsole, DEFAULTS, LOGO } from './console.js';
-import { loupe } from '../commun/loupe.js';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, RATIO } from '../js/data.js?v=5917ed4e';
+import { STEP, SLOPE } from '../commun/logo.js?v=5917ed4e';
+import { icon, paramsOpen } from '../commun/params.js?v=5917ed4e';
+import { drawLogo, drawPhoto, PALETTES } from './render.js?v=5917ed4e';
+import { KEYS, pad2, venue, year, BY, NODES, EDGES, CHRONO, drawNet, focus as focusNet, drawChrono, focusChrono, drawMatrix, focusMatrix, drawStrata, focusStrata, strataOrder } from './views.js?v=5917ed4e';
+import { buildConsole, DEFAULTS, LOGO } from './console.js?v=5917ed4e';
+import { loupe } from '../commun/loupe.js?v=5917ed4e';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;

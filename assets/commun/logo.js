@@ -4,7 +4,7 @@
    largeur d'une tuile vers la droite, et une montée de 0,62 fois
    ce pas. Les gris sont ceux du fichier (#666 → #e6e6e6).       */
 
-import { TILE_PATH, TILE_BOX } from '../js/data.js';
+import { TILE_PATH, TILE_BOX } from '../js/data.js?v=5917ed4e';
 
 export const STEP = 0.272;
 export const SLOPE = 0.62;
