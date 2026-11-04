@@ -8,11 +8,11 @@
    — un index textuel des projets tient à côté de l'éventail ;
    — les visuels gardent leurs proportions : rien n'est recadré.   */
 
-import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=1bbe07d1';
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=1bbe07d1';
-import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=1bbe07d1';
-import { icon, paramsOpen, openParams } from '../commun/params.js?v=1bbe07d1';
-import { loupe } from '../commun/loupe.js?v=1bbe07d1';
+import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=048a54d5';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=048a54d5';
+import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=048a54d5';
+import { icon, paramsOpen, openParams } from '../commun/params.js?v=048a54d5';
+import { loupe } from '../commun/loupe.js?v=048a54d5';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -792,9 +792,17 @@ scene.addEventListener('click', (e) => {
     if (i === active) openProject(i); else ruleTo(i, true);
     return;
   }
-  const i = b ? +b.dataset.i : clamp(Math.round(ptr.s.i.target), 0, N - 1);
-  if (i !== active || ptr.get('prox') < 0.5) { setActive(i); ptr.set('i', i); ptr.set('prox', 1); wake(); return; }
-  openProject(i);
+  /* tablette (04/11) : un toucher ouvre la lamelle qu'on voit sous le
+     doigt. Les boîtes des lamelles se chevauchent et débordent leur
+     dessin : on ne retient que le dessin, le plus en avant */
+  const top = document.elementsFromPoint(e.clientX, e.clientY)
+    .find((el) => el.matches && el.matches('.tile__fill, .tile__gel'));
+  if (!top) return;
+  const i = +top.closest('.tile').dataset.i;
+  if (i === active && ptr.get('prox') > 0.5) { openProject(i); return; }
+  /* on la voit se lever, puis la fiche s'ouvre */
+  setActive(i); ptr.set('i', i); ptr.set('prox', 1); wake();
+  setTimeout(() => { if (view === 'deck' && active === i) openProject(i); }, REDUCED ? 0 : 240);
 });
 
 rows.forEach((b, i) => {
@@ -865,13 +873,17 @@ function step(i) {
    au projet voisin. Sur tablette (04/11), le doigt fait ce que fait la
    souris sur ordinateur : on le promène sur l'éventail, la lamelle qu'il
    survole se lève ; à l'arrêt elle reste levée, la toucher l'ouvre. */
-function scrub(cx) {
+function bandAt(cx) {
   let k = 0, i = 0;
   for (let j = 0; j < N; j++) {
     const e = tileAtRest(j);
     const t = (cx - (e.right - e.band)) / e.band;
     if (t >= 0) { k = j; i = j + clamp(t - 0.5, -0.5, 0.5); }
   }
+  return { k, i };
+}
+function scrub(cx) {
+  const { k, i } = bandAt(cx);
   ptr.set('i', clamp(i, -0.6, N - 0.4));
   ptr.set('prox', 1);
   if (k !== active) setActive(k);
