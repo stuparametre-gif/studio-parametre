@@ -1,4 +1,4 @@
-@import url('fonts.css?v=6f7daf38');
+@import url('fonts.css?v=aabfc6ee');
 /* studio, paramètre — socle commun aux maquettes A et C
    Registre clair : le papier du logo officiel, le white cube.
    Le mot-symbole est dessiné en SVG (03/11) : sa licence Coolvetica
@@ -196,6 +196,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .prm__row:nth-child(3) { --d: 4; }
 .prm__row:nth-child(4) { --d: 5; }
 .prm__foot { --d: 6; }
+.prm__lgw { --d: 7; }
 
 .prm__bar {
   display: flex;
@@ -233,17 +234,38 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 6px 16px;
-  padding: 26px 0 22px 26px;
+  padding: 26px 0 6px 26px;
   font-size: 11px;
   color: var(--ink-3);
 }
 .prm__hint kbd { font-family: var(--mono); font-size: 10px; padding: 1px 5px; border: 1px solid var(--line-2); border-radius: 3px; }
 @media (hover: none) { .prm__hint { display: none; } }
+.prm__lgw { padding: 0 0 22px 26px; font-size: 11px; color: var(--ink-3); }
+.prm__lg {
+  text-decoration: underline;
+  text-decoration-color: var(--line-2);
+  text-underline-offset: 3px;
+}
+.prm__lg:hover, .prm__lg[aria-expanded='true'] { color: var(--ink-2); }
+/* sur la grille des réglages, en petit : on la consulte, on ne la lit pas */
+.prm__legal {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 10px 16px;
+  padding-top: 18px;
+  line-height: 1.6;
+}
+.prm__legal[hidden] { display: none; }
+.prm__legal dt { color: var(--ink-3); }
+.prm__legal dd { color: var(--ink-2); }
+.prm__legal a { color: inherit; }
 
 @media (max-width: 640px) {
   .prm__win { width: 100%; padding: 0 var(--pad); }
-  .prm__bar, .prm__logo, .prm__row, .prm__foot { padding-left: 0; }
+  .prm__bar, .prm__logo, .prm__row, .prm__foot, .prm__lgw { padding-left: 0; }
   .prm__row { grid-template-columns: 1fr; gap: 6px; }
+  .prm__legal { grid-template-columns: 1fr; gap: 2px; }
+  .prm__legal dd + dt { margin-top: 8px; }
   .prm__logo { padding-top: 34px; padding-bottom: 24px; }
   .prm__logo > svg { height: 50px; }
 }

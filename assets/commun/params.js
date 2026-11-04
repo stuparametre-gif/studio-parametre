@@ -4,8 +4,8 @@
    à droite fait la même chose. Studio, périmètre et contact y
    tiennent ensemble — l'ancien about et l'ancien contact fusionnés. */
 
-import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=6f7daf38';
-import { TILE_PATH, TILE_BOX } from '../js/data.js?v=6f7daf38';
+import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=aabfc6ee';
+import { TILE_PATH, TILE_BOX } from '../js/data.js?v=aabfc6ee';
 
 document.documentElement.dataset.type = 'cabinet';
 
@@ -29,6 +29,7 @@ const MAIL = ['stu.parametre', 'gmail.com'].join('@');
 const RAW = '33' + '782429838';
 export function wire(root = document) {
   root.querySelectorAll('[data-mail]').forEach((el) => (el.href = 'mailto:' + MAIL));
+  root.querySelectorAll('[data-mail-txt]').forEach((el) => (el.textContent = MAIL));
   root.querySelectorAll('[data-wa]').forEach((el) => { el.href = 'https://wa.me/' + RAW; el.rel = 'noopener'; el.target = '_blank'; });
   root.querySelectorAll('[data-tel]').forEach((el) => (el.href = 'tel:+' + RAW));
   root.querySelectorAll('[data-ig]').forEach((el) => { el.href = 'https://www.instagram.com/studio_parametre/'; el.rel = 'me noopener'; el.target = '_blank'; });
@@ -86,6 +87,19 @@ el.innerHTML = `
       </div>
     </dl>
     <p class="prm__foot"><span>© 2026 studio, paramètre</span><span class="prm__hint"><kbd>${CTRL}</kbd> <kbd>,</kbd> ouvre et ferme ce panneau</span></p>
+    <div class="prm__lgw">
+    <button class="prm__lg" type="button" aria-expanded="false" aria-controls="prm-lg">mentions légales</button>
+    <dl class="prm__legal" id="prm-lg" hidden>
+      <dt>Éditeur</dt>
+      <dd>Studio Paramètre<br>Jérôme Talleux, entrepreneur individuel<br>SIRET 840 980 080 00021<br><a data-mail data-mail-txt></a></dd>
+      <dt>Publication</dt>
+      <dd>Jérôme Talleux, directeur de la publication</dd>
+      <dt>Hébergement</dt>
+      <dd>GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États‑Unis</dd>
+      <dt>Données</dt>
+      <dd>Aucun cookie, aucune mesure d’audience. Le navigateur garde seulement vos réglages d’affichage, qui ne quittent pas votre appareil.</dd>
+    </dl>
+    </div>
   </section>`;
 document.body.appendChild(el);
 drawGlyph(el.querySelector('.prm__logo svg'), 5);
@@ -137,11 +151,22 @@ addEventListener('pageshow', () => {
 const win = el.querySelector('.prm__win');
 let back = null;
 
+/* les mentions légales : repliées sous le pied, on les déplie sur place */
+const lgBtn = el.querySelector('.prm__lg');
+const lg = el.querySelector('.prm__legal');
+function legal(open) {
+  lg.hidden = !open;
+  lgBtn.setAttribute('aria-expanded', open);
+  if (open) win.lastElementChild.scrollIntoView({ block: 'end', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+lgBtn.addEventListener('click', () => legal(lg.hidden));
+
 export function openParams() {
   if (el.classList.contains('is-on')) return;
   back = document.activeElement;
   el.classList.add('is-on');
   document.documentElement.dataset.params = 'on';
+  legal(false);
   win.scrollTop = 0;
   requestAnimationFrame(() => el.querySelector('[data-close].ico').focus({ preventScroll: true }));
 }
