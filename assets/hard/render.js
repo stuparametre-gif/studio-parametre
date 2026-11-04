@@ -7,7 +7,7 @@
    rendus. Tout ce que règle la console (pas, pente, profondeur,
    rotation, densité, glitch, palette) arrive ici.              */
 
-import { TILE_PATH, TILE_BOX } from '../js/data.js?v=089766d5';
+import { TILE_PATH, TILE_BOX } from '../js/data.js?v=1bbe07d1';
 
 const [BX, BY, BW, BH] = TILE_BOX.split(' ').map(Number);
 const TAU = Math.PI * 2;

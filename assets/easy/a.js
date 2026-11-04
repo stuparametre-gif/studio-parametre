@@ -8,11 +8,11 @@
    — un index textuel des projets tient à côté de l'éventail ;
    — les visuels gardent leurs proportions : rien n'est recadré.   */
 
-import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=089766d5';
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=089766d5';
-import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=089766d5';
-import { icon, paramsOpen, openParams } from '../commun/params.js?v=089766d5';
-import { loupe } from '../commun/loupe.js?v=089766d5';
+import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=1bbe07d1';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=1bbe07d1';
+import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=1bbe07d1';
+import { icon, paramsOpen, openParams } from '../commun/params.js?v=1bbe07d1';
+import { loupe } from '../commun/loupe.js?v=1bbe07d1';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -231,6 +231,12 @@ function measure() {
   let idxX, idxY, idxW, row, dx0, dx1, dy0, dy1;
   if (side) {
     idxW = clamp(vw * 0.28, 280, 400);
+    idx.classList.toggle('idx--tight', idxW < 380);
+    /* le plus long titre tient sur sa ligne avec son lieu (04/11 : sur
+       iPad, « Maison G… », « Salon de Mo… ») ; l'éventail cède la place */
+    const gap = parseFloat(getComputedStyle(rows[0]).columnGap) || 0;
+    const need = Math.max(...rows.map((b) => b.querySelector('.t').scrollWidth + gap + b.querySelector('.l').scrollWidth));
+    idxW = Math.min(Math.max(idxW, Math.ceil(need) + 1), vw * 0.4);
     row = Math.min(clamp(vh * 0.05, 30, 46), (vh - headB - 12 - pad) / N);
     idxX = vw - pad - idxW;
     dx0 = pad; dx1 = idxX - Math.max(pad, vw * 0.04);
@@ -238,13 +244,13 @@ function measure() {
     idxY = clamp((dy0 + dy1) / 2 - (row * N) / 2, headB + 12, vh - pad - row * N);
   } else {
     idxW = vw - pad * 2;
+    idx.classList.toggle('idx--tight', idxW < 380);
     row = clamp(vh * 0.044, 34, 44);
     idxX = pad;
     idxY = vh - pad - row * N;
     dx0 = pad; dx1 = vw - pad;
     dy0 = headB + 12; dy1 = idxY - 20;
   }
-  idx.classList.toggle('idx--tight', idxW < 380);
   const availW = dx1 - dx0, availH = dy1 - dy0;
 
   /* ── l'éventail : une marge pour la levée et le grossissement ── */
