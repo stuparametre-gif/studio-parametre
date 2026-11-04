@@ -4,8 +4,8 @@
    à droite fait la même chose. Studio, périmètre et contact y
    tiennent ensemble — l'ancien about et l'ancien contact fusionnés. */
 
-import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=aabfc6ee';
-import { TILE_PATH, TILE_BOX } from '../js/data.js?v=aabfc6ee';
+import { drawGlyph, STEP, SLOPE, LOGO_GREYS } from './logo.js?v=105b4359';
+import { TILE_PATH, TILE_BOX } from '../js/data.js?v=105b4359';
 
 document.documentElement.dataset.type = 'cabinet';
 
@@ -98,6 +98,8 @@ el.innerHTML = `
       <dd>GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États‑Unis</dd>
       <dt>Données</dt>
       <dd>Aucun cookie, aucune mesure d’audience. Le navigateur garde seulement vos réglages d’affichage, qui ne quittent pas votre appareil.</dd>
+      <dt>Site</dt>
+      <dd>Pensé par studio, paramètre. Bâti par Claude<i class="px" aria-hidden="true"></i></dd>
     </dl>
     </div>
   </section>`;
@@ -157,7 +159,7 @@ const lg = el.querySelector('.prm__legal');
 function legal(open) {
   lg.hidden = !open;
   lgBtn.setAttribute('aria-expanded', open);
-  if (open) win.lastElementChild.scrollIntoView({ block: 'end', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  if (open) win.scrollTo({ top: win.scrollHeight, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
 lgBtn.addEventListener('click', () => legal(lg.hidden));
 

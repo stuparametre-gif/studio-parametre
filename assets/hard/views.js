@@ -8,7 +8,7 @@
      projet placé au mois de son ouverture.
    Aucune donnée n'est inventée : tout sort de js/data.js.      */
 
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO } from '../js/data.js?v=aabfc6ee';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO } from '../js/data.js?v=105b4359';
 
 /* les mots-clés de chaque fiche, rôle compris : deux projets qui
    partagent « Plein air » ou « Accrochage » se trouvent reliés */

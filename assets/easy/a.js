@@ -8,11 +8,11 @@
    — un index textuel des projets tient à côté de l'éventail ;
    — les visuels gardent leurs proportions : rien n'est recadré.   */
 
-import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=aabfc6ee';
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=aabfc6ee';
-import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=aabfc6ee';
-import { icon, paramsOpen, openParams } from '../commun/params.js?v=aabfc6ee';
-import { loupe } from '../commun/loupe.js?v=aabfc6ee';
+import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=105b4359';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=105b4359';
+import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=105b4359';
+import { icon, paramsOpen, openParams } from '../commun/params.js?v=105b4359';
+import { loupe } from '../commun/loupe.js?v=105b4359';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
