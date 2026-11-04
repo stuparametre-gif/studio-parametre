@@ -8,11 +8,11 @@
    — un index textuel des projets tient à côté de l'éventail ;
    — les visuels gardent leurs proportions : rien n'est recadré.   */
 
-import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=105b4359';
-import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=105b4359';
-import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=105b4359';
-import { icon, paramsOpen, openParams } from '../commun/params.js?v=105b4359';
-import { loupe } from '../commun/loupe.js?v=105b4359';
+import { Rig, onFrame, wake, GLIDE, SOFT, SNAP, clamp, bell } from '../js/motion.js?v=089766d5';
+import { PROJECTS as P, TILE_PATH, TILE_BOX, TILE_RATIO, RATIO } from '../js/data.js?v=089766d5';
+import { STEP as STEP_X, SLOPE, LOGO_GREYS } from '../commun/logo.js?v=089766d5';
+import { icon, paramsOpen, openParams } from '../commun/params.js?v=089766d5';
+import { loupe } from '../commun/loupe.js?v=089766d5';
 
 const N = P.length;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -855,19 +855,47 @@ function step(i) {
   wake();
 }
 
-/* glissé au doigt sur l'éventail */
+/* glissé au doigt sur l'éventail. Au téléphone, un coup de doigt passe
+   au projet voisin. Sur tablette (04/11), le doigt fait ce que fait la
+   souris sur ordinateur : on le promène sur l'éventail, la lamelle qu'il
+   survole se lève ; à l'arrêt elle reste levée, la toucher l'ouvre. */
+function scrub(cx) {
+  let k = 0, i = 0;
+  for (let j = 0; j < N; j++) {
+    const e = tileAtRest(j);
+    const t = (cx - (e.right - e.band)) / e.band;
+    if (t >= 0) { k = j; i = j + clamp(t - 0.5, -0.5, 0.5); }
+  }
+  ptr.set('i', clamp(i, -0.6, N - 0.4));
+  ptr.set('prox', 1);
+  if (k !== active) setActive(k);
+  wake();
+}
 (() => {
-  let x0 = null, t0 = 0;
-  scene.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; t0 = Date.now(); }, { passive: true });
+  let x0 = null, t0 = 0, drag = false, dragEnd = 0;
+  scene.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; t0 = Date.now(); drag = false; }, { passive: true });
+  scene.addEventListener('touchmove', (e) => {
+    if (x0 === null || view !== 'deck' || G.mob) return;
+    const x = e.touches[0].clientX;
+    if (!drag && Math.abs(x - x0) > 8) drag = true;
+    if (drag) scrub(x);
+  }, { passive: true });
   scene.addEventListener('touchend', (e) => {
     if (x0 === null || view !== 'deck') { x0 = null; return; }
-    const dx = e.changedTouches[0].clientX - x0;
-    if (Math.abs(dx) > 36 && Date.now() - t0 < 600) {
-      const k = clamp(active + (dx < 0 ? 1 : -1), 0, N - 1);
-      setActive(k); ptr.set('i', k); ptr.set('prox', 1); wake();
+    if (G.mob) {
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 36 && Date.now() - t0 < 600) {
+        const k = clamp(active + (dx < 0 ? 1 : -1), 0, N - 1);
+        setActive(k); ptr.set('i', k); ptr.set('prox', 1); wake();
+      }
+    } else if (drag) {
+      /* la lamelle se cale, et le doigt levé n'ouvre rien */
+      ptr.set('i', active); wake();
+      dragEnd = Date.now();
     }
     x0 = null;
   }, { passive: true });
+  scene.addEventListener('click', (e) => { if (Date.now() - dragEnd < 400) e.stopImmediatePropagation(); }, true);
 })();
 
 /* ══ liens profonds ═══════════════════════════════════════ */

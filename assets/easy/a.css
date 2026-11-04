@@ -9,6 +9,8 @@ body { touch-action: manipulation; }
 #app { position: fixed; inset: 0; overflow: hidden; }
 
 .scene { position: absolute; inset: 0; perspective: 2600px; }
+/* sur tablette, le doigt promène la visée sur l'éventail : la page ne bouge pas avec lui */
+[data-mob=''] .scene { touch-action: none; }
 .deck { position: absolute; inset: 0; transform-style: preserve-3d; }
 
 .tile {
